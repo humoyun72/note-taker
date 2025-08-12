@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:note_taker/features/home_screen/bloc/bloc.dart';
+import 'package:note_taker/features/home_screen/bloc/event.dart';
 import 'package:note_taker/features/home_screen/bloc/state.dart';
 import 'package:note_taker/generated/assets.dart';
 import 'package:note_taker/shared/model/note.dart';
@@ -34,50 +36,73 @@ class HomeScreen extends StatelessWidget {
               actionsPadding: const EdgeInsets.only(right: 16),
               centerTitle: true,
             ),
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: Color(0xFFE8505B),
+              shape: CircleBorder(),
+              onPressed: () {
+                //TODO go to create note screen
+              },
+                child: Icon(Icons.add, color: Colors.white, size: 32,)),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
             body: SafeArea(child: BlocBuilder<HomeScreenBloc, HomeScreenState>(builder: (context, state) {
-              return _buildNotes(state.notes);
+              return _buildNotes(context, state.notes);
             },
 
             )
-          )
+            )
         )
     );
   }
 
-  Widget _buildNotes(List<Note> notes) {
+  Widget _buildNotes(BuildContext context, List<Note> notes) {
     if (notes.isEmpty) {
       return const Center(child: Text("No notes found"));
     } else {
       return Padding(
         padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          itemCount: notes.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16
-            ),
-            itemBuilder: (context, index) {
-              final note = notes[index];
+        child: RefreshIndicator(
+          onRefresh: () async {
+            context.read<HomeScreenBloc>().add(LoadNotesEvent());
+          },
+          child: MasonryGridView.count(
+              itemCount: notes.length,
+              crossAxisCount: 2,
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 20,
+              itemBuilder: (context, index) {
+                final note = notes[index];
 
-              //random color for background
-              final randomColor = noteColor[index % noteColor.length];
+                //random color for background
+                final randomColor = noteColor[index % noteColor.length];
 
-              return Container(
-                color: randomColor,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(note.title),
-                    const SizedBox(height: 8),
-                    Expanded(child:
-                     Text(note.content)
-                    )
-                  ],
-                ),
-              );
-            }
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: randomColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        note.title,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        // note.content,
+                        index % 2 == 1 ? "content $index" : ""
+                            "lorem  ipsum dolor sit amter for "
+                            "windows application and high quality images",
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                );
+              }
+          ),
         ),
       );
 
