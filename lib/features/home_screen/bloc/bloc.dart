@@ -6,12 +6,17 @@ import 'state.dart';
 
 class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
   final NoteRepository _noteRepository;
-  HomeScreenBloc(this._noteRepository): super(HomeScreenState()) {
-    on<LoadNotesEvent>(_loadNotes);
+
+  HomeScreenBloc(this._noteRepository) : super(HomeScreenState()) {
+    on<LoadNotesEvent>(_onLoadNotes);
   }
 
-  Future<void> _loadNotes(LoadNotesEvent event, Emitter<HomeScreenState> emit) async {
+  Future<void> _onLoadNotes(
+    LoadNotesEvent event,
+    Emitter<HomeScreenState> emit,
+  ) async {
     final notes = await _noteRepository.getNotes();
+
     emit(HomeScreenState(notes: notes));
   }
 }

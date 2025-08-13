@@ -5,16 +5,16 @@ import 'package:note_taker/features/home_screen/bloc/event.dart';
 
 import 'bloc/bloc.dart';
 
-
 class HomeScreenWrapper extends StatelessWidget {
   final Widget child;
+
   const HomeScreenWrapper({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
-   return BlocProvider(
-       create: (context) => HomeScreenBloc(GetIt.I.get())..add(LoadNotesEvent()),
-       child: child
-   );
+    return BlocProvider(
+      create: (context) => HomeScreenBloc(GetIt.I.get())..add(LoadNotesEvent()),
+      child: child,
+    );
   }
 }
